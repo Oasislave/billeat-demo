@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>BillEat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy:      #1A3A5C;
+      --blue:      #29ABE2;
+      --blue-lt:   #E8F6FC;
+      --blue-mid:  #B3E0F5;
+      --white:     #FFFFFF;
+      --bg:        #F4F7FA;
+      --gray:      #7A8FA6;
+      --border:    #D6E6F2;
+      --green:     #22C55E;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+
+    body{
+      font-family:'Nunito Sans',sans-serif;
+      background:#111;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* Phone shell */
+    .phone{
+      width:390px;
+      height:844px;
+      background:var(--bg);
+      border-radius:50px;
+      overflow:hidden;
+      position:relative;
+      box-shadow:0 40px 80px rgba(0,0,0,0.6), inset 0 0 0 2px #333;
+    }
+
+    /* Screens */
+    .screen{
+      position:absolute;
+      inset:0;
+      overflow-y:auto;
+      overflow-x:hidden;
+      transition:transform 0.4s cubic-bezier(.4,0,.2,1), opacity 0.4s;
+    }
+    .screen.hidden{transform:translateX(100%);opacity:0;pointer-events:none;}
+    .screen.slide-left{transform:translateX(-100%);opacity:0;pointer-events:none;}
+
+    /* ── SCREEN 1: QR SCAN ── */
+    #screen-qr{
+      background:#000;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+
+    .food-bg{
+      position:absolute;
+      inset:0;
+      background: linear-gradient(145deg, #E8F6FC 0%, #B3E0F5 35%, #29ABE2 70%, #1A3A5C 100%);
+    }
+
+    .qr-nav{
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      z-index:2;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:52px 24px 16px;
+    }
+
+    .hamburger{
+      display:flex;flex-direction:column;gap:5px;cursor:pointer;
+    }
+    .hamburger span{width:22px;height:2px;background:var(--navy);border-radius:2px;display:block;}
+
+    .logo-text{
+      font-family:'Nunito',sans-serif;
+      font-weight:900;
+      font-size:36px;
+      letter-spacing:-1px;
+      text-shadow: 0 2px 12px rgba(26,58,92,0.15);
+    }
+    .logo-bill{color:var(--navy);}
+    .logo-eat{color:var(--blue);}
+
+    .avatar{
+      width:36px;height:36px;
+      background:var(--blue);
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:18px;
+      cursor:pointer;
+    }
+
+    .qr-card{
+      position:relative;
+      z-index:2;
+      background:white;
+      border-radius:28px;
+      margin:auto 20px;
+      padding:52px 32px 52px;
+      text-align:center;
+      box-shadow:0 20px 60px rgba(0,0,0,0.3);
+      min-height:75vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .hello-text{
+      font-family:'Nunito',sans-serif;
+      font-weight:800;
+      font-size:22px;
+      color:var(--navy);
+      margin-bottom:28px;
+    }
+
+    /* QR Code SVG */
+    .qr-wrapper{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      margin-bottom:28px;
+      position:relative;
+    }
+
+    .qr-frame{
+      position:relative;
+      width:160px;height:160px;
+    }
+
+    /* Corner brackets */
+    .qr-frame::before,.qr-frame::after{
+      content:'';
+      position:absolute;
+      width:28px;height:28px;
+      border-color:var(--blue);
+      border-style:solid;
+    }
+    .qr-frame::before{top:0;left:0;border-width:3px 0 0 3px;border-radius:4px 0 0 0;}
+    .qr-frame::after{top:0;right:0;border-width:3px 3px 0 0;border-radius:0 4px 0 0;}
+
+    .qr-inner{
+      position:relative;
+      width:100%;height:100%;
+    }
+    .qr-inner::before,.qr-inner::after{
+      content:'';
+      position:absolute;
+      width:28px;height:28px;
+      border-color:var(--blue);
+      border-style:solid;
+    }
+    .qr-inner::before{bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 4px;}
+    .qr-inner::after{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 4px 0;}
+
+    .qr-svg{
+      position:absolute;
+      top:50%;left:50%;
+      transform:translate(-50%,-50%);
+      width:120px;height:120px;
+    }
+
+    .scan-btn{
+      width:100%;
+      background:var(--blue);
+      color:white;
+      border:none;
+      border-radius:50px;
+      padding:16px;
+      font-family:'Nunito',sans-serif;
+      font-weight:800;
+      font-size:16px;
+      cursor:pointer;
+      transition:transform 0.15s, box-shadow 0.15s;
+      box-shadow:0 6px 20px rgba(41,171,226,0.4);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    }
+    .scan-btn:active{transform:scale(0.97);}
+
+    /* scanning animation overlay */
+    .scanning-overlay{
+      display:none;
+      position:absolute;
+      inset:0;
+      background:rgba(0,0,0,0.85);
+      z-index:10;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:20px;
+    }
+    .scanning-overlay.show{display:flex;}
+
+    .scan-box{
+      width:220px;height:220px;
+      border-radius:20px;
+      position:relative;
+      overflow:hidden;
+    }
+    .scan-box::before,.scan-box::after{
+      content:'';position:absolute;
+      width:36px;height:36px;
+      border-color:var(--blue);border-style:solid;
+    }
+    .scan-box::before{top:0;left:0;border-width:4px 0 0 4px;border-radius:6px 0 0 0;}
+    .scan-box::after{top:0;right:0;border-width:4px 4px 0 0;border-radius:0 6px 0 0;}
+
+    .scan-box-inner{position:absolute;inset:0;}
+    .scan-box-inner::before,.scan-box-inner::after{
+      content:'';position:absolute;
+      width:36px;height:36px;
+      border-color:var(--blue);border-style:solid;
+    }
+    .scan-box-inner::before{bottom:0;left:0;border-width:0 0 4px 4px;border-radius:0 0 0 6px;}
+    .scan-box-inner::after{bottom:0;right:0;border-width:0 4px 4px 0;border-radius:0 0 6px 0;}
+
+    .scan-line{
+      position:absolute;
+      left:0;right:0;
+      height:2px;
+      background:linear-gradient(90deg, transparent, var(--blue), transparent);
+      animation:scanMove 1.8s ease-in-out infinite;
+    }
+    @keyframes scanMove{
+      0%{top:10%;}
+      50%{top:85%;}
+      100%{top:10%;}
+    }
+
+    .scan-label{
+      color:white;
+      font-family:'Nunito',sans-serif;
+      font-weight:700;
+      font-size:15px;
+      opacity:0.8;
+    }
+
+    /* ── SCREEN 2: BILL ── */
+    #screen-bill{background:var(--bg);}
+
+    .bill-nav{
+      background:var(--navy);
+      padding:52px 20px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      position:sticky;top:0;z-index:10;
+    }
+
+    .back-btn{
+      width:36px;height:36px;
+      background:rgba(255,255,255,0.15);
+      border:none;border-radius:10px;
+      font-size:18px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      color:white;
+    }
+
+    .bill-nav .logo-bill{color:white;}
+
+    /* Restaurant hero */
+    .resto-hero{
+      background:linear-gradient(135deg, var(--navy) 0%, #1e5080 100%);
+      padding:20px 20px 24px;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .resto-hero::after{
+      content:'';position:absolute;
+      top:-40px;right:-40px;
+      width:130px;height:130px;
+      background:rgba(41,171,226,0.1);
+      border-radius:50%;
+    }
+    .resto-hero-name{
+      font-family:'Nunito',sans-serif;
+      font-weight:900;font-size:26px;
+      color:white;letter-spacing:-0.5px;
+      line-height:1.1;margin-bottom:6px;
+    }
+    .resto-hero-meta{
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      flex-wrap:wrap;
+    }
+    .resto-chip{
+      background:rgba(255,255,255,0.15);
+      border-radius:20px;padding:4px 12px;
+      font-size:12px;font-weight:700;color:rgba(255,255,255,0.9);
+    }
+    .resto-chip.blue{background:var(--blue);color:white;}
+
+    /* Section label */
+    .section-label{
+      padding:18px 20px 10px;
+      font-family:'Nunito',sans-serif;
+      font-weight:800;font-size:15px;color:var(--navy);
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .section-label span{font-size:12px;color:var(--gray);font-weight:600;}
+
+    /* Bill item cards */
+    .bill-cards{
+      padding:0 16px;
+      display:flex;flex-direction:column;gap:10px;
+    }
+
+    .bill-card{
+      background:white;
+      border-radius:16px;
+      padding:14px 14px;
+      display:flex;align-items:center;gap:12px;
+      box-shadow:0 2px 10px rgba(26,58,92,0.07);
+      border:2px solid transparent;
+      transition:all 0.2s ease;
+      cursor:pointer;
+    }
+    .bill-card.selected{
+      border-color:var(--blue);
+      background:var(--blue-lt);
+      box-shadow:0 2px 14px rgba(41,171,226,0.2);
+    }
+
+    .card-emoji{
+      width:44px;height:44px;
+      background:var(--bg);
+      border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:22px;flex-shrink:0;
+      transition:background 0.2s;
+    }
+    .bill-card.selected .card-emoji{background:var(--blue-mid);}
+
+    .card-details{flex:1;min-width:0;}
+    .card-name{
+      font-family:'Nunito',sans-serif;font-weight:700;
+      font-size:14px;color:var(--navy);margin-bottom:2px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .card-meta{font-size:12px;color:var(--gray);font-weight:600;}
+
+    .card-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+    .card-price{
+      font-family:'Nunito',sans-serif;font-weight:800;
+      font-size:15px;color:var(--navy);
+    }
+    .bill-card.selected .card-price{color:var(--blue);}
+
+    .cb{
+      width:22px;height:22px;
+      border:2px solid var(--border);
+      border-radius:7px;
+      display:flex;align-items:center;justify-content:center;
+      transition:all 0.15s;background:white;flex-shrink:0;
+    }
+    .cb.checked{background:var(--blue);border-color:var(--blue);}
+    .cb svg{opacity:0;transform:scale(0.5);transition:all 0.15s;}
+    .cb.checked svg{opacity:1;transform:scale(1);}
+
+    /* Quantity selector — shown on multi-qty items when selected */
+    .qty-selector{
+      display:flex;align-items:center;gap:0;
+      background:var(--bg);
+      border-radius:10px;
+      overflow:hidden;
+      border:1.5px solid var(--blue-mid);
+      margin-top:8px;
+    }
+    .qty-btn{
+      width:30px;height:30px;
+      background:none;border:none;
+      font-size:18px;font-weight:700;
+      color:var(--blue);cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:background 0.1s;
+      flex-shrink:0;
+    }
+    .qty-btn:active{background:var(--blue-mid);}
+    .qty-num{
+      min-width:28px;text-align:center;
+      font-family:'Nunito',sans-serif;font-weight:800;
+      font-size:14px;color:var(--navy);
+    }
+    .qty-label{
+      font-size:11px;color:var(--gray);font-weight:600;
+      margin-top:3px;text-align:center;
+    }
+
+    /* My total sticky bar */
+    .my-total-sticky{
+      position:sticky;bottom:0;
+      background:white;
+      border-top:1px solid var(--border);
+      padding:14px 16px 12px;
+      box-shadow:0 -4px 20px rgba(26,58,92,0.1);
+    }
+    .my-total-row{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:12px;
+    }
+    .my-total-label{
+      font-family:'Nunito',sans-serif;font-weight:800;
+      font-size:15px;color:var(--navy);
+    }
+    .my-total-amount{
+      font-family:'Nunito',sans-serif;font-weight:900;
+      font-size:24px;color:var(--blue);
+    }
+    .bill-actions{display:flex;flex-direction:column;gap:8px;}
+
+    .primary-btn{
+      width:100%;background:var(--navy);color:white;border:none;
+      border-radius:50px;padding:15px;
+      font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;
+      cursor:pointer;box-shadow:0 4px 16px rgba(26,58,92,0.25);
+      transition:transform 0.15s;
+    }
+    .primary-btn:active{transform:scale(0.97);}
+    .primary-btn:disabled{background:#B0C4D8;box-shadow:none;}
+
+    .secondary-btn{
+      width:100%;background:white;color:var(--blue);
+      border:2px solid var(--blue);border-radius:50px;padding:13px;
+      font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;
+      cursor:pointer;transition:transform 0.15s;
+    }
+    .secondary-btn:active{transform:scale(0.97);}
+
+    /* ── SCREEN 3: CONFIRM ── */
+    #screen-confirm{background:var(--bg);}
+
+    .confirm-nav{
+      background:var(--navy);
+      padding:52px 20px 16px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:relative;
+    }
+    .confirm-nav-title{
+      font-family:'Nunito',sans-serif;font-weight:800;
+      font-size:18px;color:white;
+      position:absolute;left:50%;transform:translateX(-50%);
+    }
+    .back-btn-white{
+      width:36px;height:36px;
+      background:rgba(255,255,255,0.15);
+      border:none;border-radius:10px;
+      font-size:18px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;color:white;
+    }
+
+    /* Bill receipt card */
+    .receipt-card{
+      margin:20px 16px 0;
+      background:white;
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow:0 4px 20px rgba(26,58,92,0.1);
+    }
+    .receipt-header{
+      background:linear-gradient(135deg, var(--navy) 0%, #1e5080 100%);
+      padding:20px;text-align:center;
+    }
+    .receipt-restaurant{
+      font-family:'Nunito',sans-serif;font-weight:900;
+      font-size:18px;color:white;margin-bottom:4px;
+    }
+    .receipt-meta{font-size:12px;color:rgba(255,255,255,0.7);font-weight:600;}
+
+    .receipt-divider{
+      display:flex;align-items:center;padding:0 16px;
+      border-bottom:1px dashed var(--border);
+    }
+    .receipt-divider::before,.receipt-divider::after{
+      content:'';flex:1;
+    }
+    .receipt-hole{
+      width:16px;height:16px;
+      background:var(--bg);
+      border-radius:50%;
+      margin:0 8px;
+      flex-shrink:0;
+    }
+
+    .receipt-items{padding:4px 0;}
+    .receipt-row{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:12px 20px;
+      border-bottom:1px solid var(--border);
+    }
+    .receipt-row:last-child{border-bottom:none;}
+    .receipt-item-name{
+      font-family:'Nunito',sans-serif;font-weight:700;
+      font-size:14px;color:var(--navy);
+    }
+    .receipt-item-qty{
+      font-size:12px;color:var(--gray);font-weight:600;margin-top:1px;
+    }
+    .receipt-item-price{
+      font-family:'Nunito',sans-serif;font-weight:800;
+      font-size:14px;color:var(--navy);
+    }
+
+    .receipt-total-row{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:16px 20px;
+      background:var(--blue-lt);
+      border-top:2px solid var(--blue-mid);
+    }
+    .receipt-total-label{
+      font-family:'Nunito',sans-serif;font-weight:800;
+      font-size:16px;color:var(--navy);
+    }
+    .receipt-total-amount{
+      font-family:'Nunito',sans-serif;font-weight:900;
+      font-size:26px;color:var(--blue);
+    }
+
+    /* BillIt button */
+    .billit-wrap{padding:16px 16px 12px;}
+    .billit-btn{
+      width:100%;
+      background:linear-gradient(135deg, var(--blue) 0%, #1a8fbf 100%);
+      color:white;border:none;border-radius:50px;
+      padding:18px;
+      font-family:'Nunito',sans-serif;font-weight:900;
+      font-size:18px;letter-spacing:0.3px;
+      cursor:pointer;
+      box-shadow:0 6px 24px rgba(41,171,226,0.4);
+      transition:transform 0.15s, box-shadow 0.15s;
+    }
+    .billit-btn:active{transform:scale(0.97);box-shadow:0 3px 12px rgba(41,171,226,0.3);}
+
+    /* Billed success state */
+    .billed-screen{
+      display:none;
+      text-align:center;
+      padding:40px 24px;
+    }
+    .billed-screen.show{display:block;}
+    .billed-icon{font-size:72px;margin-bottom:16px;animation:popIn 0.4s ease;}
+    @keyframes popIn{
+      0%{transform:scale(0.5);opacity:0;}
+      70%{transform:scale(1.1);}
+      100%{transform:scale(1);opacity:1;}
+    }
+    .billed-title{
+      font-family:'Nunito',sans-serif;font-weight:900;
+      font-size:26px;color:var(--navy);margin-bottom:8px;
+    }
+    .billed-sub{
+      font-size:14px;color:var(--gray);line-height:1.6;margin-bottom:32px;
+    }
+
+    /* Profile prompt */
+    .profile-prompt{
+      margin:0 16px 24px;background:white;border-radius:16px;
+      padding:20px;box-shadow:0 2px 12px rgba(26,58,92,0.08);
+      border-left:4px solid var(--blue);
+    }
+    .pp-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;color:var(--navy);margin-bottom:6px;}
+    .pp-text{font-size:13px;color:var(--gray);line-height:1.5;margin-bottom:14px;}
+    .pp-btn{
+      width:100%;background:var(--navy);color:white;border:none;
+      border-radius:12px;padding:14px;
+      font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;
+    }
+    .pp-skip{
+      width:100%;background:none;color:var(--gray);border:none;
+      padding:10px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;
+      cursor:pointer;margin-top:6px;
+    }
+
+    /* Split evenly bottom sheet */
+    .split-overlay{
+      position:absolute;inset:0;
+      background:rgba(0,0,0,0.45);
+      z-index:80;
+      display:none;
+      align-items:flex-end;
+    }
+    .split-overlay.show{display:flex;}
+
+    .split-sheet{
+      background:white;
+      width:100%;
+      border-radius:24px 24px 0 0;
+      padding:20px 20px 36px;
+      animation:slideUp 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes slideUp{
+      from{transform:translateY(100%);}
+      to{transform:translateY(0);}
+    }
+
+    .split-handle{
+      width:40px;height:4px;
+      background:var(--border);border-radius:2px;
+      margin:0 auto 20px;
+    }
+
+    .split-title{
+      font-family:'Nunito',sans-serif;font-weight:800;
+      font-size:17px;color:var(--navy);
+      text-align:center;margin-bottom:6px;
+    }
+    .split-sub{
+      font-size:13px;color:var(--gray);font-weight:600;
+      text-align:center;margin-bottom:20px;
+    }
+
+    .split-btns{
+      display:grid;grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .split-btn{
+      background:var(--bg);
+      border:2px solid var(--border);
+      border-radius:16px;
+      padding:18px 12px;
+      cursor:pointer;
+      transition:all 0.15s;
+      display:flex;flex-direction:column;
+      align-items:center;gap:4px;
+    }
+    .split-btn:active{transform:scale(0.96);}
+    .split-btn.selected{
+      background:var(--blue-lt);
+      border-color:var(--blue);
+    }
+    .split-btn-num{
+      font-family:'Nunito',sans-serif;font-weight:900;
+      font-size:28px;color:var(--navy);
+    }
+    .split-btn.selected .split-btn-num{color:var(--blue);}
+    .split-btn-label{
+      font-size:12px;font-weight:700;color:var(--gray);
+    }
+    .split-btn.selected .split-btn-label{color:var(--blue);}
+
+    .split-preview{
+      margin-top:16px;
+      background:var(--blue-lt);
+      border-radius:12px;
+      padding:12px 16px;
+      text-align:center;
+      display:none;
+    }
+    .split-preview.show{display:block;}
+    .split-preview-text{
+      font-family:'Nunito',sans-serif;font-weight:800;
+      font-size:15px;color:var(--navy);
+    }
+    .split-preview-amount{
+      font-family:'Nunito',sans-serif;font-weight:900;
+      font-size:26px;color:var(--blue);margin-top:2px;
+    }
+
+    .split-confirm-btn{
+      width:100%;margin-top:14px;
+      background:var(--navy);color:white;border:none;
+      border-radius:50px;padding:15px;
+      font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;
+      cursor:pointer;display:none;
+    }
+    .split-confirm-btn.show{display:block;}
+
+    .split-custom-wrap{
+      display:none;
+      margin-top:12px;
+    }
+    .split-custom-wrap.show{display:block;}
+    .split-custom-label{
+      font-size:12px;font-weight:700;color:var(--gray);
+      margin-bottom:6px;text-align:center;
+    }
+    .split-custom-input{
+      width:100%;
+      border:2px solid var(--blue);
+      border-radius:12px;
+      padding:12px 16px;
+      font-family:"Nunito",sans-serif;font-weight:800;
+      font-size:22px;color:var(--navy);
+      text-align:center;
+      outline:none;
+      background:var(--blue-lt);
+    }
+    .split-custom-input::placeholder{color:var(--border);}
+
+    /* Two-button row for bill actions */
+    .bill-actions-row{
+      display:grid;grid-template-columns:1fr 1fr;gap:10px;
+    }
+
+    /* ── SCREEN 4: CREATE PROFILE ── */
+    #screen-profile{background:var(--bg);}
+
+    .profile-nav{
+      background:var(--navy);
+      padding:52px 20px 16px;
+      display:flex;align-items:center;gap:12px;
+    }
+    .profile-nav-title{
+      font-family:'Nunito',sans-serif;font-weight:800;
+      font-size:18px;color:white;
+    }
+
+    .profile-hero{
+      background:linear-gradient(135deg, var(--blue) 0%, #1a8fbf 100%);
+      padding:28px 20px;text-align:center;
+    }
+    .profile-hero-avatar{
+      width:72px;height:72px;
+      background:rgba(255,255,255,0.2);
+      border-radius:50%;margin:0 auto 12px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:36px;
+    }
+    .profile-hero-title{
+      font-family:'Nunito',sans-serif;font-weight:900;
+      font-size:20px;color:white;margin-bottom:4px;
+    }
+    .profile-hero-sub{font-size:13px;color:rgba(255,255,255,0.8);}
+
+    .profile-form{padding:20px 16px;}
+
+    .form-group{margin-bottom:16px;}
+    .form-label{
+      font-family:'Nunito',sans-serif;font-weight:700;
+      font-size:13px;color:var(--navy);margin-bottom:6px;display:block;
+    }
+    .form-input{
+      width:100%;
+      border:2px solid var(--border);
+      border-radius:12px;
+      padding:13px 16px;
+      font-family:'Nunito Sans',sans-serif;font-weight:600;
+      font-size:15px;color:var(--navy);
+      outline:none;background:white;
+      transition:border-color 0.15s;
+    }
+    .form-input:focus{border-color:var(--blue);}
+
+    .prefs-label{
+      font-family:'Nunito',sans-serif;font-weight:700;
+      font-size:13px;color:var(--navy);margin-bottom:10px;display:block;
+    }
+    .prefs-grid{
+      display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;
+    }
+    .pref-tag{
+      background:white;border:2px solid var(--border);
+      border-radius:20px;padding:7px 14px;
+      font-family:'Nunito',sans-serif;font-weight:700;
+      font-size:13px;color:var(--navy);cursor:pointer;
+      transition:all 0.15s;
+    }
+    .pref-tag.active{
+      background:var(--blue-lt);border-color:var(--blue);color:var(--blue);
+    }
+
+    .join-btn{
+      width:100%;
+      background:linear-gradient(135deg, var(--navy) 0%, #1e5080 100%);
+      color:white;border:none;border-radius:50px;padding:17px;
+      font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;
+      cursor:pointer;box-shadow:0 6px 20px rgba(26,58,92,0.25);
+      transition:transform 0.15s;margin-bottom:10px;
+    }
+    .join-btn:active{transform:scale(0.97);}
+    .skip-link{
+      width:100%;background:none;border:none;
+      font-family:'Nunito',sans-serif;font-weight:700;
+      font-size:13px;color:var(--gray);cursor:pointer;padding:8px;
+      display:block;text-align:center;
+    }
+
+    /* ── SCREEN 5: MY PROFILE ── */
+    #screen-myprofile{background:var(--bg);}
+
+    .myprofile-header{
+      background:linear-gradient(135deg, var(--navy) 0%, #1e5080 100%);
+      padding:52px 20px 28px;
+      text-align:center;position:relative;overflow:hidden;
+    }
+    .myprofile-header::after{
+      content:'';position:absolute;
+      top:-40px;right:-40px;
+      width:140px;height:140px;
+      background:rgba(41,171,226,0.1);border-radius:50%;
+    }
+    .myprofile-avatar{
+      width:80px;height:80px;
+      background:var(--blue);border-radius:50%;
+      margin:0 auto 12px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:38px;border:3px solid rgba(255,255,255,0.3);
+    }
+    .myprofile-name{
+      font-family:'Nunito',sans-serif;font-weight:900;
+      font-size:22px;color:white;margin-bottom:3px;
+    }
+    .myprofile-email{font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:14px;}
+    .myprofile-stats{
+      display:flex;justify-content:center;gap:24px;
+    }
+    .myprofile-stat{text-align:center;}
+    .myprofile-stat-num{
+      font-family:'Nunito',sans-serif;font-weight:900;
+      font-size:22px;color:white;
+    }
+    .myprofile-stat-label{font-size:11px;color:rgba(255,255,255,0.65);font-weight:600;}
+
+    .profile-section{padding:18px 16px 6px;}
+    .profile-section-title{
+      font-family:'Nunito',sans-serif;font-weight:800;
+      font-size:15px;color:var(--navy);margin-bottom:12px;
+    }
+
+    .taste-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;}
+    .taste-tag{
+      background:var(--blue-lt);border:2px solid var(--blue-mid);
+      border-radius:20px;padding:6px 14px;
+      font-family:'Nunito',sans-serif;font-weight:700;
+      font-size:13px;color:var(--blue);
+    }
+
+    .history-card{
+      background:white;border-radius:16px;
+      padding:14px 16px;margin-bottom:10px;
+      box-shadow:0 2px 10px rgba(26,58,92,0.06);
+      display:flex;align-items:center;gap:12px;cursor:pointer;
+    }
+    .history-icon{
+      width:44px;height:44px;background:var(--bg);
+      border-radius:12px;display:flex;align-items:center;
+      justify-content:center;font-size:22px;flex-shrink:0;
+    }
+    .history-details{flex:1;}
+    .history-restaurant{
+      font-family:'Nunito',sans-serif;font-weight:700;
+      font-size:14px;color:var(--navy);margin-bottom:2px;
+    }
+    .history-meta{font-size:12px;color:var(--gray);font-weight:600;}
+    .history-amount{
+      font-family:'Nunito',sans-serif;font-weight:800;
+      font-size:15px;color:var(--blue);flex-shrink:0;
+    }
+
+    /* ── EDIT PROFILE SHEET ── */
+    .edit-sheet-overlay{
+      position:absolute;inset:0;
+      background:rgba(0,0,0,0.45);
+      z-index:80;display:none;align-items:flex-end;
+    }
+    .edit-sheet-overlay.show{display:flex;}
+
+    .edit-sheet{
+      background:white;width:100%;
+      border-radius:24px 24px 0 0;
+      padding:20px 20px 40px;
+      animation:slideUp 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    .edit-sheet-handle{
+      width:40px;height:4px;background:var(--border);
+      border-radius:2px;margin:0 auto 20px;
+    }
+    .edit-sheet-title{
+      font-family:'Nunito',sans-serif;font-weight:800;
+      font-size:17px;color:var(--navy);margin-bottom:4px;
+    }
+    .edit-sheet-sub{
+      font-size:13px;color:var(--gray);font-weight:600;margin-bottom:20px;
+    }
+    .edit-option{
+      display:flex;align-items:center;gap:14px;
+      padding:15px 4px;
+      border-bottom:1px solid var(--border);
+      cursor:pointer;transition:background 0.1s;
+    }
+    .edit-option:last-child{border-bottom:none;}
+    .edit-option:active{background:var(--bg);}
+    .edit-option-icon{
+      width:40px;height:40px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;flex-shrink:0;
+    }
+    .edit-option-text{}
+    .edit-option-label{
+      font-family:'Nunito',sans-serif;font-weight:700;
+      font-size:14px;color:var(--navy);
+    }
+    .edit-option-sub{font-size:12px;color:var(--gray);font-weight:600;margin-top:1px;}
+    .edit-option.danger .edit-option-label{color:#EF4444;}
+
+    /* ── MENU DRAWER ── */
+    .drawer-overlay{
+      position:absolute;inset:0;
+      background:rgba(0,0,0,0.5);
+      z-index:50;
+      display:none;
+    }
+    .drawer-overlay.show{display:block;}
+
+    .drawer{
+      position:absolute;
+      top:0;left:0;bottom:0;
+      width:72%;
+      background:white;
+      z-index:51;
+      transform:translateX(-100%);
+      transition:transform 0.3s ease;
+      padding:60px 24px 24px;
+    }
+    .drawer.open{transform:translateX(0);}
+
+    .drawer-avatar{
+      width:64px;height:64px;
+      background:var(--blue-lt);
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:32px;
+      margin-bottom:12px;
+      color:var(--blue);
+    }
+    .drawer-name{
+      font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:var(--navy);
+      display:flex;align-items:center;gap:6px;margin-bottom:24px;
+    }
+    .drawer-name span{font-size:14px;color:var(--blue);}
+
+    .drawer-divider{height:1px;background:var(--border);margin-bottom:16px;}
+
+    .drawer-item{
+      padding:14px 0;
+      font-family:'Nunito',sans-serif;font-weight:700;font-size:15px;color:var(--navy);
+      border-bottom:1px solid var(--border);cursor:pointer;
+      display:flex;align-items:center;gap:10px;
+    }
+    .drawer-item:last-child{border-bottom:none;color:#EF4444;}
+  </style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- ══ SCREEN 1: QR SCAN ══ -->
+  <div class="screen" id="screen-qr">
+    <div class="food-bg"></div>
+
+    <!-- Nav -->
+    <div class="qr-nav">
+      <div class="avatar" onclick="goTo('screen-myprofile','screen-qr')">👤</div>
+      <div class="logo-text">
+        <span class="logo-bill">Bill</span><span class="logo-eat">Eat</span>
+      </div>
+      <div style="width:36px"></div>
+    </div>
+
+    <!-- Card -->
+    <div class="qr-card">
+      <div class="hello-text">Hello, David! 👋</div>
+
+      <div class="qr-wrapper">
+        <div class="qr-frame">
+          <div class="qr-inner">
+            <!-- QR SVG representation -->
+            <svg class="qr-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Top-left block -->
+              <rect x="10" y="10" width="30" height="30" rx="3" fill="none" stroke="#29ABE2" stroke-width="3"/>
+              <rect x="17" y="17" width="16" height="16" rx="1" fill="#29ABE2"/>
+              <!-- Top-right block -->
+              <rect x="60" y="10" width="30" height="30" rx="3" fill="none" stroke="#29ABE2" stroke-width="3"/>
+              <rect x="67" y="17" width="16" height="16" rx="1" fill="#29ABE2"/>
+              <!-- Bottom-left block -->
+              <rect x="10" y="60" width="30" height="30" rx="3" fill="none" stroke="#29ABE2" stroke-width="3"/>
+              <rect x="17" y="67" width="16" height="16" rx="1" fill="#29ABE2"/>
+              <!-- Data dots -->
+              <rect x="48" y="10" width="7" height="7" rx="1" fill="#29ABE2"/>
+              <rect x="48" y="21" width="7" height="7" rx="1" fill="#29ABE2"/>
+              <rect x="10" y="48" width="7" height="7" rx="1" fill="#29ABE2"/>
+              <rect x="21" y="48" width="7" height="7" rx="1" fill="#29ABE2"/>
+              <rect x="48" y="48" width="7" height="7" rx="1" fill="#29ABE2"/>
+              <rect x="59" y="48" width="7" height="7" rx="1" fill="#29ABE2"/>
+              <rect x="70" y="48" width="7" height="7" rx="1" fill="#29ABE2"/>
+              <rect x="81" y="48" width="7" height="7" rx="1" fill="#29ABE2"/>
+              <rect x="48" y="59" width="7" height="7" rx="1" fill="#29ABE2"/>
+              <rect x="59" y="59" width="7" height="7" rx="1" fill="#29ABE2"/>
+              <rect x="48" y="70" width="7" height="7" rx="1" fill="#29ABE2"/>
+              <rect x="70" y="70" width="7" height="7" rx="1" fill="#29ABE2"/>
+              <rect x="59" y="81" width="7" height="7" rx="1" fill="#29ABE2"/>
+              <rect x="81" y="81" width="7" height="7" rx="1" fill="#29ABE2"/>
+              <rect x="81" y="59" width="7" height="7" rx="1" fill="#29ABE2"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <button class="scan-btn" onclick="startScan()">
+        <span>📷</span>
+        <span>Join Your Table</span>
+      </button>
+    </div>
+
+    <!-- Scanning overlay (simulated) -->
+    <div class="scanning-overlay" id="scanningOverlay">
+      <div class="scan-box">
+        <div class="scan-box-inner"></div>
+        <div class="scan-line"></div>
+      </div>
+      <div class="scan-label">Scanning QR code...</div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 2: BILL ══ -->
+  <div class="screen hidden" id="screen-bill">
+    <!-- Nav -->
+    <div class="bill-nav">
+      <button class="back-btn" onclick="goBack('screen-bill')">←</button>
+      <div class="logo-text" style="font-size:20px">
+        <span class="logo-bill">Bill</span><span class="logo-eat">Eat</span>
+      </div>
+      <div class="avatar" onclick="goTo('screen-myprofile','screen-bill')">👤</div>
+    </div>
+
+    <!-- Restaurant hero -->
+    <div class="resto-hero">
+      <div class="resto-hero-name">EATit<br>Diner's Bar</div>
+      <div class="resto-hero-meta">
+        <div class="resto-chip blue">Table 7</div>
+        <div class="resto-chip">Tel Aviv</div>
+        <div class="resto-chip">4 diners</div>
+        <div class="resto-chip">Nov 10, 2024</div>
+      </div>
+    </div>
+
+    <!-- Items label -->
+    <div class="section-label">
+      Tap what you ordered
+      <span id="selectedCount">0 of 5 selected</span>
+    </div>
+
+    <!-- Bill item cards -->
+    <div class="bill-cards" id="billBody"></div>
+
+    <div style="height:16px"></div>
+
+    <!-- Sticky bottom bar -->
+    <div class="my-total-sticky">
+      <div class="my-total-row">
+        <div class="my-total-label">My total 🧾</div>
+        <div class="my-total-amount" id="myTotalAmt">₪0</div>
+      </div>
+      <div class="bill-actions">
+        <div class="bill-actions-row">
+          <button class="secondary-btn" onclick="openSplit()" style="font-size:14px;">Split Evenly 🤝</button>
+          <button class="primary-btn" id="orderCheckBtn" onclick="goTo('screen-confirm','screen-bill')" disabled style="font-size:14px;">Confirm Order</button>
+        </div>
+        <button class="secondary-btn" id="pingBtn" onclick="pingStaff()">Ping Staff 🔔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 3: CONFIRM ══ -->
+  <div class="screen hidden" id="screen-confirm">
+    <div class="confirm-nav">
+      <button class="back-btn-white" onclick="goBack('screen-confirm')">←</button>
+      <div class="confirm-nav-title">My Bill</div>
+      <div class="avatar" onclick="goTo('screen-myprofile','screen-confirm')">👤</div>
+    </div>
+
+    <!-- Receipt card -->
+    <div class="receipt-card" id="receiptCard">
+      <div class="receipt-header">
+        <div class="receipt-restaurant">EATit Diner's Bar</div>
+        <div class="receipt-meta">Table 7 · Nov 10, 2024</div>
+      </div>
+      <div class="receipt-divider"><div class="receipt-hole"></div></div>
+      <div class="receipt-items" id="confirmList"></div>
+      <div class="receipt-total-row">
+        <div class="receipt-total-label">My Total</div>
+        <div class="receipt-total-amount" id="confirmTotal">₪0</div>
+      </div>
+    </div>
+
+    <!-- BillIt CTA -->
+    <div class="billit-wrap" id="billitWrap">
+      <button class="billit-btn" onclick="billIt()">
+        Let's BillEat! 🧾
+      </button>
+    </div>
+
+    <!-- Post-billing success state (replaces receipt + button) -->
+    <div class="billed-screen" id="billedScreen">
+      <div class="billed-icon">🎉</div>
+      <div class="billed-title">You've been billed!</div>
+      <div class="billed-sub">Your bill has been sent to the staff.<br>They'll be with you shortly.</div>
+    </div>
+
+    <!-- Profile prompt — always visible at bottom -->
+    <div class="profile-prompt" style="margin:20px 16px 16px;">
+      <div class="pp-title">Save your food profile 🌟</div>
+      <div class="pp-text">Next time you dine out, BillEat will remember your preferences. Get personalised recommendations and never wait for the bill again.</div>
+      <button class="pp-btn" onclick="goTo('screen-profile','screen-confirm')">Create My Food Profile</button>
+      <button class="pp-skip">Skip for now</button>
+    </div>
+  </div>
+
+  <!-- ══ SPLIT EVENLY SHEET ══ -->
+  <div class="split-overlay" id="splitOverlay" onclick="closeSplitOnBg(event)">
+    <div class="split-sheet" id="splitSheet">
+      <div class="split-handle"></div>
+      <div class="split-title">Split Evenly 🤝</div>
+      <div class="split-sub">How many people are splitting the total bill?</div>
+      <div class="split-btns">
+        <div class="split-btn" onclick="selectSplit(2)">
+          <div class="split-btn-num">2</div>
+          <div class="split-btn-label">people</div>
+        </div>
+        <div class="split-btn" onclick="selectSplit(3)">
+          <div class="split-btn-num">3</div>
+          <div class="split-btn-label">people</div>
+        </div>
+        <div class="split-btn" onclick="selectSplit(4)">
+          <div class="split-btn-num">4</div>
+          <div class="split-btn-label">people</div>
+        </div>
+        <div class="split-btn" onclick="selectSplit(0)">
+          <div class="split-btn-num" style="font-size:20px;padding-top:4px">Other</div>
+          <div class="split-btn-label">custom</div>
+        </div>
+      </div>
+      <!-- Custom input (shown when Other is selected) -->
+      <div class="split-custom-wrap" id="splitCustomWrap">
+        <div class="split-custom-label">Enter number of people</div>
+        <input class="split-custom-input" id="splitCustomInput" type="number" min="2" max="99" placeholder="e.g. 5" oninput="onCustomInput(this.value)" />
+      </div>
+
+      <div class="split-preview" id="splitPreview">
+        <div class="split-preview-text">Your share</div>
+        <div class="split-preview-amount" id="splitAmount">₪0</div>
+      </div>
+      <button class="split-confirm-btn" id="splitConfirmBtn" onclick="confirmSplit()">
+        Apply Split
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 4: CREATE PROFILE ══ -->
+  <div class="screen hidden" id="screen-profile">
+    <div class="profile-nav">
+      <button class="back-btn-white" onclick="goBack('screen-profile')">←</button>
+      <div class="profile-nav-title">Create Your Profile</div>
+    </div>
+
+    <div class="profile-hero">
+      <div class="profile-hero-avatar">👤</div>
+      <div class="profile-hero-title">Join BillEat</div>
+      <div class="profile-hero-sub">Your personal dining identity — remembered forever</div>
+    </div>
+
+    <div class="profile-form">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" type="text" placeholder="e.g. David Doe" id="inputName"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input class="form-input" type="tel" placeholder="+972 50 000 0000" id="inputPhone"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" placeholder="david@email.com" id="inputEmail"/>
+      </div>
+
+      <span class="prefs-label">Your Food Preferences (select all that apply)</span>
+      <div class="prefs-grid" id="prefsGrid">
+        <div class="pref-tag" onclick="togglePref(this)">🥩 Meat lover</div>
+        <div class="pref-tag" onclick="togglePref(this)">🥗 Vegetarian</div>
+        <div class="pref-tag" onclick="togglePref(this)">🌱 Vegan</div>
+        <div class="pref-tag" onclick="togglePref(this)">🐟 Pescatarian</div>
+        <div class="pref-tag" onclick="togglePref(this)">🌾 Gluten free</div>
+        <div class="pref-tag" onclick="togglePref(this)">🥛 Dairy free</div>
+        <div class="pref-tag" onclick="togglePref(this)">🌶️ Spicy food</div>
+        <div class="pref-tag" onclick="togglePref(this)">🍷 Wine lover</div>
+        <div class="pref-tag" onclick="togglePref(this)">☕ Coffee addict</div>
+        <div class="pref-tag" onclick="togglePref(this)">🍰 Sweet tooth</div>
+      </div>
+
+      <button class="join-btn" onclick="createProfile()">Create My Profile 🚀</button>
+      <button class="skip-link" onclick="goTo('screen-qr','screen-profile')">Maybe later</button>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 5: MY PROFILE ══ -->
+  <div class="screen hidden" id="screen-myprofile">
+    <div class="myprofile-header">
+      <button class="back-btn-white" onclick="goBack('screen-myprofile')" style="position:absolute;top:52px;left:20px;">←</button>
+      <div class="myprofile-avatar">👤</div>
+      <div class="myprofile-name" id="profileName">David Doe</div>
+      <div class="myprofile-email" id="profileEmail">david@email.com</div>
+      <button onclick="openEditSheet()" style="margin-top:12px;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);color:white;border-radius:20px;padding:6px 18px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;">✏️ Edit Profile</button>
+      <div class="myprofile-stats">
+        <div class="myprofile-stat">
+          <div class="myprofile-stat-num">12</div>
+          <div class="myprofile-stat-label">Meals</div>
+        </div>
+        <div class="myprofile-stat">
+          <div class="myprofile-stat-num">₪1,840</div>
+          <div class="myprofile-stat-label">Total spent</div>
+        </div>
+        <div class="myprofile-stat">
+          <div class="myprofile-stat-num">8</div>
+          <div class="myprofile-stat-label">Restaurants</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <div class="profile-section-title">My Taste Profile 🍽️</div>
+      <div class="taste-tags" id="profileTags">
+        <div class="taste-tag">🥩 Meat lover</div>
+        <div class="taste-tag">🍷 Wine lover</div>
+        <div class="taste-tag">🍰 Sweet tooth</div>
+        <div class="taste-tag">☕ Coffee addict</div>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <div class="profile-section-title">Recent Visits 📍</div>
+      <div class="history-card">
+        <div class="history-icon">🍕</div>
+        <div class="history-details">
+          <div class="history-restaurant">EATit Diner's Bar</div>
+          <div class="history-meta">Today · Table 7 · 3 items</div>
+        </div>
+        <div class="history-amount">₪134</div>
+      </div>
+      <div class="history-card">
+        <div class="history-icon">🥩</div>
+        <div class="history-details">
+          <div class="history-restaurant">The Butcher TLV</div>
+          <div class="history-meta">Nov 3 · Table 12 · 4 items</div>
+        </div>
+        <div class="history-amount">₪218</div>
+      </div>
+      <div class="history-card">
+        <div class="history-icon">🍣</div>
+        <div class="history-details">
+          <div class="history-restaurant">Sushi Bamba</div>
+          <div class="history-meta">Oct 28 · Table 4 · 6 items</div>
+        </div>
+        <div class="history-amount">₪165</div>
+      </div>
+      <div class="history-card">
+        <div class="history-icon">🥗</div>
+        <div class="history-details">
+          <div class="history-restaurant">Café Noir</div>
+          <div class="history-meta">Oct 21 · Table 2 · 2 items</div>
+        </div>
+        <div class="history-amount">₪88</div>
+      </div>
+    </div>
+    <div style="height:24px;"></div>
+  </div>
+
+  <!-- ══ EDIT PROFILE SHEET ══ -->
+  <div class="edit-sheet-overlay" id="editSheetOverlay" onclick="closeEditOnBg(event)">
+    <div class="edit-sheet" id="editSheet">
+      <div class="edit-sheet-handle"></div>
+      <div class="edit-sheet-title">Account Settings</div>
+      <div class="edit-sheet-sub">Manage your BillEat profile</div>
+
+      <div class="edit-option" onclick="showToast('Edit name coming soon!')">
+        <div class="edit-option-icon" style="background:#E8F6FC;">✏️</div>
+        <div class="edit-option-text">
+          <div class="edit-option-label">Edit Name</div>
+          <div class="edit-option-sub">Change your display name</div>
+        </div>
+      </div>
+
+      <div class="edit-option" onclick="showToast('Edit email coming soon!')">
+        <div class="edit-option-icon" style="background:#E8F6FC;">📧</div>
+        <div class="edit-option-text">
+          <div class="edit-option-label">Edit Email</div>
+          <div class="edit-option-sub">Update your email address</div>
+        </div>
+      </div>
+
+      <div class="edit-option" onclick="showToast('Phone update coming soon!')">
+        <div class="edit-option-icon" style="background:#E8F6FC;">📱</div>
+        <div class="edit-option-text">
+          <div class="edit-option-label">Edit Phone Number</div>
+          <div class="edit-option-sub">Change your phone number</div>
+        </div>
+      </div>
+
+      <div class="edit-option" onclick="showToast('Password reset email sent!')">
+        <div class="edit-option-icon" style="background:#FFF3E0;">🔒</div>
+        <div class="edit-option-text">
+          <div class="edit-option-label">Change Password</div>
+          <div class="edit-option-sub">Send a reset link to your email</div>
+        </div>
+      </div>
+
+      <div class="edit-option" onclick="showToast('Switching account...');setTimeout(()=>goTo('screen-profile','screen-myprofile'),800)">
+        <div class="edit-option-icon" style="background:#F3E8FF;">🔄</div>
+        <div class="edit-option-text">
+          <div class="edit-option-label">Switch Account</div>
+          <div class="edit-option-sub">Log in as a different user</div>
+        </div>
+      </div>
+
+      <div class="edit-option danger" onclick="confirmLogout()">
+        <div class="edit-option-icon" style="background:#FEE2E2;">🚪</div>
+        <div class="edit-option-text">
+          <div class="edit-option-label">Log Out</div>
+          <div class="edit-option-sub">Sign out of your account</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MENU DRAWER ══ -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-avatar">👤</div>
+    <div class="drawer-name">David Doe <span>›</span></div>
+    <div class="drawer-divider"></div>
+    <div class="drawer-item">🕐 Order history</div>
+    <div class="drawer-item">🚫 Remove ads</div>
+    <div class="drawer-item">⚙️ Settings</div>
+    <div class="drawer-item">🚪 Sign Out</div>
+  </div>
+
+</div><!-- /phone -->
+
+<script>
+  // ── Bill data ──
+  const items = [
+    { name:'Pizza Funghi',   qty:1, unitPrice:78  },
+    { name:'Caprese Salad',  qty:1, unitPrice:56  },
+    { name:'Coke Zero',      qty:2, unitPrice:10  },
+    { name:'Gnocchi',        qty:2, unitPrice:82  },
+    { name:'Tiramisu',       qty:1, unitPrice:49  },
+  ];
+  // Compute display price = qty * unitPrice
+  items.forEach(i => i.price = i.qty * i.unitPrice);
+
+  let selected = new Set();
+  let selectedQty = {}; // tracks how many of each multi-qty item the user claims
+
+  const itemEmojis = ['🍕','🥗','🥤','🍝','🍮'];
+  const itemCategories = ['Main course','Starter','Drink','Main course','Dessert'];
+
+  function renderBill(){
+    const container = document.getElementById('billBody');
+    container.innerHTML = items.map((item,i) => {
+      const isSel = selected.has(i);
+      const isMulti = item.qty > 1;
+      const myQty = selectedQty[i] || 1;
+      const displayPrice = isMulti && isSel ? item.unitPrice * myQty : item.price;
+      const metaText = isMulti
+        ? `${itemCategories[i]} · ${item.qty} ordered`
+        : itemCategories[i];
+
+      const qtyBlock = isMulti && isSel ? `
+        <div style="margin-top:8px;">
+          <div class="qty-selector" onclick="event.stopPropagation()">
+            <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
+            <div class="qty-num">${myQty}</div>
+            <button class="qty-btn" onclick="changeQty(${i},1)">+</button>
+          </div>
+          <div class="qty-label">How many did you have?</div>
+        </div>` : '';
+
+      return `
+      <div class="bill-card ${isSel?'selected':''}" onclick="toggleRow(${i})">
+        <div class="card-emoji">${itemEmojis[i]}</div>
+        <div class="card-details">
+          <div class="card-name">${item.name}</div>
+          <div class="card-meta">${metaText}</div>
+          ${qtyBlock}
+        </div>
+        <div class="card-right">
+          <div class="card-price">₪${displayPrice}</div>
+          <div class="cb ${isSel?'checked':''}">
+            <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
+              <path d="M1 3.5L4 6.5L10 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    updateMyTotal();
+  }
+
+  function toggleRow(i){
+    if(selected.has(i)){
+      selected.delete(i);
+      delete selectedQty[i];
+    } else {
+      selected.add(i);
+      if(items[i].qty > 1) selectedQty[i] = 1; // default to 1
+    }
+    renderBill();
+  }
+
+  function changeQty(i, delta){
+    const max = items[i].qty;
+    const current = selectedQty[i] || 1;
+    const next = Math.min(max, Math.max(1, current + delta));
+    selectedQty[i] = next;
+    renderBill();
+  }
+
+  function updateMyTotal(){
+    let total = 0;
+    selected.forEach(i => {
+      const item = items[i];
+      if(item.qty > 1 && selectedQty[i]){
+        total += item.unitPrice * selectedQty[i];
+      } else {
+        total += item.price;
+      }
+    });
+    document.getElementById('myTotalAmt').textContent = '₪' + total;
+    const countEl = document.getElementById('selectedCount');
+    if(countEl) countEl.textContent = selected.size + ' of ' + items.length + ' selected';
+    const btn = document.getElementById('orderCheckBtn');
+    btn.disabled = selected.size === 0;
+
+    // Build confirm list
+    const cl = document.getElementById('confirmList');
+    cl.innerHTML = [...selected].map(i => {
+      const item = items[i];
+      const price = item.qty > 1 && selectedQty[i] ? item.unitPrice * selectedQty[i] : item.price;
+      const myQty = item.qty > 1 && selectedQty[i] ? selectedQty[i] : 1;
+      const qtyLabel = myQty > 1 ? `${myQty}×` : '1×';
+      return `<div class="receipt-row">
+        <div>
+          <div class="receipt-item-name">${item.name}</div>
+          <div class="receipt-item-qty">${qtyLabel} ₪${item.unitPrice} each</div>
+        </div>
+        <div class="receipt-item-price">₪${price}</div>
+      </div>`;
+    }).join('');
+    // update confirm total
+    const ct = document.getElementById('confirmTotal');
+    if(ct) ct.textContent = '₪' + total;
+  }
+
+  // ── Navigation with history stack ──
+  const navHistory = [];
+
+  function goTo(toId, fromId){
+    navHistory.push(fromId); // remember where we came from
+    document.getElementById(fromId).classList.add('slide-left');
+    document.getElementById(fromId).classList.remove('hidden');
+    setTimeout(()=>{
+      document.getElementById(fromId).classList.add('hidden');
+      document.getElementById(fromId).classList.remove('slide-left');
+    }, 400);
+    document.getElementById(toId).classList.remove('hidden');
+  }
+
+  function goBack(currentId){
+    const prev = navHistory.pop();
+    if(!prev) return;
+    document.getElementById(currentId).classList.add('hidden');
+    document.getElementById(prev).classList.remove('hidden');
+  }
+
+  // ── QR Scan simulation ──
+  function startScan(){
+    const overlay = document.getElementById('scanningOverlay');
+    overlay.classList.add('show');
+    setTimeout(()=>{
+      overlay.classList.remove('show');
+      renderBill();
+      goTo('screen-bill','screen-qr');
+    }, 2200);
+  }
+
+  // ── Drawer ──
+  function openDrawer(){
+    document.getElementById('drawerOverlay').classList.add('show');
+    document.getElementById('drawer').classList.add('open');
+  }
+  function closeDrawer(){
+    document.getElementById('drawerOverlay').classList.remove('show');
+    document.getElementById('drawer').classList.remove('open');
+  }
+
+  // Init
+  renderBill();
+
+  function togglePref(el){
+    el.classList.toggle('active');
+  }
+
+  function createProfile(){
+    const name = document.getElementById('inputName').value || 'David Doe';
+    const email = document.getElementById('inputEmail').value || 'david@email.com';
+    // Update profile screen with entered details
+    document.getElementById('profileName').textContent = name;
+    document.getElementById('profileEmail').textContent = email;
+    // Update taste tags from selected prefs
+    const activeTags = [...document.querySelectorAll('.pref-tag.active')].map(t => t.textContent);
+    if(activeTags.length > 0){
+      document.getElementById('profileTags').innerHTML = activeTags
+        .map(t => `<div class="taste-tag">${t}</div>`).join('');
+    }
+    goTo('screen-myprofile', 'screen-profile');
+  }
+
+  // Edit profile sheet
+  function openEditSheet(){
+    document.getElementById('editSheetOverlay').classList.add('show');
+  }
+  function closeEditSheet(){
+    document.getElementById('editSheetOverlay').classList.remove('show');
+  }
+  function closeEditOnBg(e){
+    if(e.target === document.getElementById('editSheetOverlay')) closeEditSheet();
+  }
+  function confirmLogout(){
+    closeEditSheet();
+    setTimeout(()=>{
+      goTo('screen-qr','screen-myprofile');
+      showToast('Logged out successfully');
+    }, 300);
+  }
+
+  // Toast (reuse across screens)
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    if(!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2200);
+  }
+
+  function billIt(){
+    document.getElementById('receiptCard').style.display = 'none';
+    document.getElementById('billitWrap').style.display = 'none';
+    document.getElementById('billedScreen').classList.add('show');
+  }
+
+  // Split evenly
+  let splitDivider = 0;
+  const tableTotal = 367;
+
+  function openSplit(){
+    splitDivider = 0;
+    document.querySelectorAll('.split-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('splitPreview').classList.remove('show');
+    document.getElementById('splitConfirmBtn').classList.remove('show');
+    document.getElementById('splitCustomWrap').classList.remove('show');
+    document.getElementById('splitCustomInput').value = '';
+    document.getElementById('splitOverlay').classList.add('show');
+  }
+
+  function closeSplitOnBg(e){
+    if(e.target === document.getElementById('splitOverlay')) closeSplit();
+  }
+
+  function closeSplit(){
+    document.getElementById('splitOverlay').classList.remove('show');
+  }
+
+  function selectSplit(n){
+    splitDivider = n;
+    document.querySelectorAll('.split-btn').forEach((b,i) => {
+      b.classList.toggle('selected', [2,3,4,0][i] === n);
+    });
+
+    const customWrap = document.getElementById('splitCustomWrap');
+    const preview = document.getElementById('splitPreview');
+    const confirmBtn = document.getElementById('splitConfirmBtn');
+    const customInput = document.getElementById('splitCustomInput');
+
+    if(n === 0){
+      // Show custom input, hide preview until they type
+      customWrap.classList.add('show');
+      customInput.value = '';
+      customInput.focus();
+      preview.classList.remove('show');
+      confirmBtn.classList.remove('show');
+    } else {
+      customWrap.classList.remove('show');
+      if(n >= 2){
+        const share = Math.ceil(tableTotal / n);
+        document.getElementById('splitAmount').textContent = '₪' + share;
+        preview.classList.add('show');
+        confirmBtn.classList.add('show');
+      }
+    }
+  }
+
+  function onCustomInput(val){
+    const n = parseInt(val);
+    const preview = document.getElementById('splitPreview');
+    const confirmBtn = document.getElementById('splitConfirmBtn');
+    if(n >= 2){
+      splitDivider = n;
+      const share = Math.ceil(tableTotal / n);
+      document.getElementById('splitAmount').textContent = '₪' + share;
+      preview.classList.add('show');
+      confirmBtn.classList.add('show');
+    } else {
+      splitDivider = 0;
+      preview.classList.remove('show');
+      confirmBtn.classList.remove('show');
+    }
+  }
+
+  function confirmSplit(){
+    if(splitDivider < 2) return;
+    const share = Math.ceil(tableTotal / splitDivider);
+    // Update my total to reflect split
+    document.getElementById('myTotalAmt').textContent = '₪' + share;
+    // Enable confirm button
+    document.getElementById('orderCheckBtn').disabled = false;
+    // Update confirm screen total
+    document.getElementById('confirmTotal').textContent = '₪' + share;
+    // Add a split note to confirm list
+    document.getElementById('confirmList').innerHTML = `
+      <div class="receipt-row">
+        <div>
+          <div class="receipt-item-name">Even split (${splitDivider} people)</div>
+          <div class="receipt-item-qty">Total bill ₪${tableTotal} ÷ ${splitDivider}</div>
+        </div>
+        <div class="receipt-item-price">₪${share}</div>
+      </div>`;
+    closeSplit();
+  }
+
+  function pingStaff(){
+    const btn = document.getElementById('pingBtn');
+    if(btn.dataset.pinged) return;
+    btn.dataset.pinged = '1';
+    btn.textContent = '✅ We are on the way!';
+    btn.style.background = '#E8F6FC';
+    btn.style.color = '#1A3A5C';
+    btn.style.borderColor = '#1A3A5C';
+    showToast('Staff has been notified! 🔔');
+    setTimeout(() => {
+      btn.textContent = 'Ping Staff 🔔';
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+      delete btn.dataset.pinged;
+    }, 8000);
+  }
+</script>
+</body>
+</html>
