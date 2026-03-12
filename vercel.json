@@ -1,7 +1,8 @@
 {
   "outputDirectory": ".",
   "rewrites": [
-    { "source": "/", "destination": "/billeat_demo.html" }
+    { "source": "/demo", "destination": "/billeat_demo.html" },
+    { "source": "/", "destination": "/billeat_website.html" }
   ],
   "headers": [
     {
