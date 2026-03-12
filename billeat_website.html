@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BillEat, Dine Smarter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#1A3A5C;
+  --blue:#29ABE2;
+  --blue-lt:#E8F6FC;
+  --white:#FFFFFF;
+  --off:#F7FAFC;
+  --gray:#6B7F92;
+  --dark:#0D1F30;
+  --accent:#FF6B35;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;color:var(--navy);background:var(--white);overflow-x:hidden;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:20px 5%;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(13,31,48,0.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(41,171,226,0.1);
+  transition:all 0.3s;
+}
+.nav-logo{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:24px;
+  color:white;text-decoration:none;letter-spacing:-0.5px;
+}
+.nav-logo span{color:var(--blue);}
+.nav-links{display:flex;align-items:center;gap:32px;}
+.nav-links a{
+  color:rgba(255,255,255,0.7);text-decoration:none;
+  font-size:14px;font-weight:500;letter-spacing:0.3px;
+  transition:color 0.2s;
+}
+.nav-links a:hover{color:white;}
+.nav-cta{
+  background:var(--blue);color:white!important;
+  padding:9px 22px;border-radius:50px;
+  font-weight:600!important;font-size:13px!important;
+  transition:all 0.2s!important;
+}
+.nav-cta:hover{background:#1a8fbf!important;transform:translateY(-1px);}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  background:var(--dark);
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;
+  padding:120px 5% 80px;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 50%, rgba(41,171,226,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(26,58,92,0.6) 0%, transparent 50%),
+    linear-gradient(135deg, #0D1F30 0%, #0a1520 100%);
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(41,171,226,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(41,171,226,0.04) 1px, transparent 1px);
+  background-size:60px 60px;
+}
+.hero-content{
+  position:relative;z-index:2;
+  max-width:1200px;margin:0 auto;width:100%;
+  display:grid;grid-template-columns:1fr 1fr;
+  align-items:center;gap:60px;
+}
+.hero-left{}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(41,171,226,0.1);border:1px solid rgba(41,171,226,0.25);
+  border-radius:50px;padding:6px 16px;
+  font-size:12px;font-weight:600;color:var(--blue);
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:24px;
+}
+.hero-tag-dot{width:6px;height:6px;background:var(--blue);border-radius:50%;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+h1{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(42px,5vw,68px);line-height:1.05;
+  color:white;letter-spacing:-2px;margin-bottom:24px;
+}
+h1 .blue{color:var(--blue);}
+h1 .line2{display:block;}
+.hero-sub{
+  font-size:18px;line-height:1.65;color:rgba(255,255,255,0.6);
+  font-weight:300;max-width:480px;margin-bottom:40px;
+}
+.hero-sub strong{color:rgba(255,255,255,0.9);font-weight:500;}
+.hero-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.btn-primary{
+  background:linear-gradient(135deg,var(--blue) 0%,#1a8fbf 100%);
+  color:white;border:none;border-radius:50px;
+  padding:16px 36px;font-family:'Syne',sans-serif;font-weight:700;
+  font-size:15px;cursor:pointer;text-decoration:none;
+  box-shadow:0 8px 32px rgba(41,171,226,0.35);
+  transition:all 0.25s;display:inline-block;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(41,171,226,0.45);}
+.btn-ghost{
+  color:rgba(255,255,255,0.7);text-decoration:none;
+  font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px;
+  transition:color 0.2s;
+}
+.btn-ghost:hover{color:white;}
+.btn-ghost-arrow{font-size:18px;transition:transform 0.2s;}
+.btn-ghost:hover .btn-ghost-arrow{transform:translateX(4px);}
+
+.hero-stats{
+  display:flex;gap:36px;margin-top:52px;padding-top:40px;
+  border-top:1px solid rgba(255,255,255,0.07);
+}
+.stat{}
+.stat-num{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:28px;color:white;letter-spacing:-1px;margin-bottom:4px;
+}
+.stat-num span{color:var(--blue);}
+.stat-label{font-size:12px;color:rgba(255,255,255,0.4);font-weight:500;letter-spacing:0.5px;text-transform:uppercase;}
+
+/* ── PHONE MOCKUP ── */
+.hero-right{display:flex;justify-content:center;align-items:center;position:relative;}
+.phone-mockup-wrap{
+  position:relative;
+  animation:float 6s ease-in-out infinite;
+}
+@keyframes float{
+  0%,100%{transform:translateY(0px);}
+  50%{transform:translateY(-16px);}
+}
+.phone-glow{
+  position:absolute;
+  width:280px;height:280px;
+  background:radial-gradient(circle, rgba(41,171,226,0.3) 0%, transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  border-radius:50%;filter:blur(40px);
+  pointer-events:none;
+}
+.phone-frame{
+  width:260px;height:540px;
+  background:linear-gradient(145deg, #1a2a3a, #0d1f30);
+  border-radius:40px;
+  padding:12px;
+  box-shadow:
+    0 40px 80px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(255,255,255,0.08),
+    inset 0 0 0 1px rgba(41,171,226,0.1);
+  position:relative;
+}
+.phone-notch{
+  width:80px;height:6px;background:rgba(0,0,0,0.8);
+  border-radius:3px;margin:0 auto 8px;
+}
+.phone-screen{
+  width:100%;height:calc(100% - 22px);
+  background:linear-gradient(160deg,#E8F6FC 0%,#c5e8f5 100%);
+  border-radius:30px;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;position:relative;
+}
+.phone-screen-nav{
+  position:absolute;top:0;left:0;right:0;
+  padding:16px 18px 10px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.phone-avatar{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--blue);display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:white;
+}
+.phone-logo{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:14px;
+  color:var(--navy);
+}
+.phone-logo span{color:var(--blue);}
+.phone-hamburger{display:flex;flex-direction:column;gap:3px;}
+.phone-hamburger span{width:16px;height:1.5px;background:var(--navy);border-radius:1px;display:block;}
+.phone-card{
+  background:white;border-radius:20px;
+  width:85%;padding:20px 18px;
+  box-shadow:0 8px 32px rgba(26,58,92,0.12);
+  text-align:center;margin-top:10px;
+}
+.phone-hi{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:13px;color:var(--navy);margin-bottom:14px;
+}
+.phone-qr{
+  width:70px;height:70px;margin:0 auto 14px;
+  display:grid;grid-template-columns:repeat(7,1fr);gap:2px;
+}
+.phone-qr-cell{border-radius:1px;}
+.phone-btn{
+  background:var(--blue);color:white;border:none;
+  border-radius:50px;padding:10px 20px;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:11px;
+  width:100%;cursor:pointer;
+}
+
+/* ── HOW IT WORKS ── */
+.section{padding:100px 5%;}
+.section-inner{max-width:1200px;margin:0 auto;}
+.section-tag{
+  font-size:12px;font-weight:700;color:var(--blue);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;
+}
+h2{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(32px,4vw,52px);line-height:1.1;
+  letter-spacing:-1.5px;color:var(--navy);margin-bottom:20px;
+}
+.section-sub{
+  font-size:17px;color:var(--gray);line-height:1.6;
+  max-width:540px;font-weight:300;
+}
+
+.how-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:2px;margin-top:60px;
+  background:var(--navy);border-radius:24px;overflow:hidden;
+}
+.how-step{
+  background:var(--white);padding:40px 36px;
+  position:relative;transition:background 0.3s;
+}
+.how-step:hover{background:var(--off);}
+.step-num{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:56px;color:#a8d8ef;line-height:1;
+  margin-bottom:20px;letter-spacing:-2px;
+}
+.step-icon{font-size:32px;margin-bottom:16px;display:block;}
+.step-title{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:20px;color:var(--navy);margin-bottom:10px;
+}
+.step-desc{font-size:14px;color:var(--gray);line-height:1.6;font-weight:300;}
+
+/* ── FOR WHOM ── */
+.for-section{background:var(--off);padding:100px 5%;}
+.for-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;
+  margin-top:60px;
+}
+.for-card{
+  border-radius:24px;padding:48px 40px;position:relative;overflow:hidden;
+}
+.for-card.diners{
+  background:linear-gradient(135deg, var(--navy) 0%, #1e5080 100%);
+  color:white;
+}
+.for-card.restaurants{
+  background:linear-gradient(135deg, var(--blue) 0%, #1a8fbf 100%);
+  color:white;
+}
+.for-card-icon{font-size:48px;margin-bottom:24px;display:block;}
+.for-card h3{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:28px;margin-bottom:16px;letter-spacing:-0.5px;
+}
+.for-card p{font-size:15px;line-height:1.7;opacity:0.85;font-weight:300;margin-bottom:28px;}
+.for-card ul{list-style:none;}
+.for-card ul li{
+  font-size:14px;padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  display:flex;align-items:center;gap:10px;font-weight:400;
+}
+.for-card ul li:last-child{border-bottom:none;}
+.for-card ul li::before{content:'✓';font-weight:700;opacity:0.8;}
+.for-card-bg{
+  position:absolute;right:-20px;bottom:-20px;
+  font-size:160px;opacity:0.05;line-height:1;
+  pointer-events:none;
+}
+
+/* ── INSIGHT STRIP ── */
+.insight-strip{
+  background:var(--dark);padding:80px 5%;
+  position:relative;overflow:hidden;
+}
+.insight-strip::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 80% at 50% 50%, rgba(41,171,226,0.08) 0%, transparent 70%);
+}
+.insight-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1;}
+.insight-inner h2{color:white;}
+.insight-inner .section-sub{color:rgba(255,255,255,0.5);}
+.insight-cards{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+  margin-top:52px;
+}
+.insight-card{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(41,171,226,0.12);
+  border-radius:16px;padding:24px;
+  transition:all 0.3s;cursor:default;
+}
+.insight-card:hover{
+  background:rgba(41,171,226,0.08);
+  border-color:rgba(41,171,226,0.3);
+  transform:translateY(-4px);
+}
+.insight-card-icon{font-size:28px;margin-bottom:14px;}
+.insight-card-stat{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:30px;color:white;letter-spacing:-1px;margin-bottom:4px;
+}
+.insight-card-stat span{color:var(--blue);}
+.insight-card-label{font-size:12px;color:rgba(255,255,255,0.45);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+
+/* ── DEMO CTA ── */
+.demo-section{
+  padding:100px 5%;text-align:center;
+  background:white;
+}
+.demo-inner{max-width:700px;margin:0 auto;}
+.demo-inner h2{margin-bottom:20px;}
+.demo-inner .section-sub{margin:0 auto 40px;text-align:center;}
+.demo-phones{
+  display:flex;justify-content:center;gap:-20px;margin-bottom:48px;
+  position:relative;height:160px;
+}
+.demo-phone-img{
+  width:70px;height:140px;border-radius:14px;
+  position:absolute;
+  box-shadow:0 20px 60px rgba(26,58,92,0.2);
+  overflow:hidden;
+}
+.demo-phone-img.p1{left:calc(50% - 120px);transform:rotate(-8deg);top:10px;background:linear-gradient(160deg,#E8F6FC,#c5e8f5);}
+.demo-phone-img.p2{left:calc(50% - 35px);transform:rotate(0deg);top:0;background:linear-gradient(160deg,#1A3A5C,#1e5080);z-index:2;}
+.demo-phone-img.p3{left:calc(50% + 50px);transform:rotate(8deg);top:10px;background:linear-gradient(160deg,#0D1F30,#1A3A5C);}
+.demo-phone-screen{
+  width:100%;height:100%;display:flex;align-items:center;
+  justify-content:center;font-size:24px;
+}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--dark);padding:60px 5% 40px;
+  border-top:1px solid rgba(41,171,226,0.1);
+}
+.footer-inner{max-width:1200px;margin:0 auto;}
+.footer-top{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:40px;margin-bottom:48px;
+  flex-wrap:wrap;
+}
+.footer-brand{}
+.footer-logo{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:26px;color:white;margin-bottom:12px;
+  text-decoration:none;display:block;
+}
+.footer-logo span{color:var(--blue);}
+.footer-tagline{font-size:13px;color:rgba(255,255,255,0.4);font-weight:300;max-width:220px;line-height:1.5;}
+.footer-links{}
+.footer-links-title{
+  font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;
+}
+.footer-links a{
+  display:block;font-size:14px;color:rgba(255,255,255,0.6);
+  text-decoration:none;margin-bottom:10px;transition:color 0.2s;
+  font-weight:300;
+}
+.footer-links a:hover{color:white;}
+.footer-contact{font-size:13px;color:rgba(255,255,255,0.45);margin-top:8px;}
+.footer-contact a{color:var(--blue);text-decoration:none;}
+.footer-bottom{
+  padding-top:32px;border-top:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;
+}
+.footer-copy{font-size:12px;color:rgba(255,255,255,0.3);}
+.footer-made{font-size:12px;color:rgba(255,255,255,0.2);}
+
+/* ── ANIMATIONS ── */
+.reveal{
+  opacity:0;transform:translateY(30px);
+  transition:opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .hero-content{grid-template-columns:1fr;}
+  .hero-right{display:none;}
+  .how-grid{grid-template-columns:1fr;}
+  .for-grid{grid-template-columns:1fr;}
+  .insight-cards{grid-template-columns:1fr 1fr;}
+  .nav-links{display:none;}
+}
+@media(max-width:600px){
+  .hero-stats{gap:24px;}
+  .insight-cards{grid-template-columns:1fr 1fr;}
+  .footer-top{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#"><span>Bill</span>Eat</a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#for-whom">For whom</a>
+    <a href="#insights">Insights</a>
+    <a href="#demo" class="nav-cta">Try Demo →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-left">
+      <div class="hero-tag">
+        <span class="hero-tag-dot"></span>
+        Diner Intelligence Platform
+      </div>
+      <h1>
+        Every diner.<br/>
+        <span class="blue">Every item.</span>
+        <span class="line2">Zero blind spots.</span>
+      </h1>
+      <p class="hero-sub">
+        BillEat uses QR technology to give each diner their own <strong>personal bill</strong> at a shared table, while giving restaurants <strong>real-time intelligence</strong> on who's sitting in their seats.
+      </p>
+      <div class="hero-actions">
+        <a href="/demo" class="btn-primary">Try Live Demo</a>
+        <a href="mailto:contact@billeat.com" class="btn-ghost">
+          Contact Us <span class="btn-ghost-arrow">→</span>
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-num">73<span>%</span></div>
+          <div class="stat-label">Scan rate avg</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">$23<span>+</span></div>
+          <div class="stat-label">Upsell per diner</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">0<span>s</span></div>
+          <div class="stat-label">Bill waiting time</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="phone-mockup-wrap">
+        <div class="phone-glow"></div>
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-screen-nav">
+              <div class="phone-avatar">👤</div>
+              <div class="phone-logo"><span>Bill</span>Eat</div>
+              <div class="phone-hamburger"><span></span><span></span><span></span></div>
+            </div>
+            <div class="phone-card">
+              <div class="phone-hi">Hello, David! 👋</div>
+              <svg width="72" height="72" viewBox="0 0 72 72" style="margin:0 auto 14px;display:block;">
+                <rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="#29ABE2" stroke-width="2.5"/>
+                <rect x="7" y="7" width="10" height="10" rx="1" fill="#29ABE2"/>
+                <rect x="50" y="2" width="20" height="20" rx="3" fill="none" stroke="#29ABE2" stroke-width="2.5"/>
+                <rect x="55" y="7" width="10" height="10" rx="1" fill="#29ABE2"/>
+                <rect x="2" y="50" width="20" height="20" rx="3" fill="none" stroke="#29ABE2" stroke-width="2.5"/>
+                <rect x="7" y="55" width="10" height="10" rx="1" fill="#29ABE2"/>
+                <rect x="28" y="2" width="6" height="6" rx="1" fill="#29ABE2"/>
+                <rect x="38" y="2" width="6" height="6" rx="1" fill="#29ABE2"/>
+                <rect x="28" y="12" width="6" height="6" rx="1" fill="#29ABE2" opacity="0.5"/>
+                <rect x="38" y="12" width="6" height="6" rx="1" fill="#29ABE2"/>
+                <rect x="28" y="22" width="6" height="6" rx="1" fill="#29ABE2"/>
+                <rect x="38" y="22" width="6" height="6" rx="1" fill="#29ABE2" opacity="0.5"/>
+                <rect x="28" y="32" width="6" height="6" rx="1" fill="#29ABE2" opacity="0.5"/>
+                <rect x="38" y="32" width="6" height="6" rx="1" fill="#29ABE2"/>
+                <rect x="48" y="32" width="6" height="6" rx="1" fill="#29ABE2"/>
+                <rect x="58" y="32" width="6" height="6" rx="1" fill="#29ABE2" opacity="0.5"/>
+                <rect x="2" y="28" width="6" height="6" rx="1" fill="#29ABE2"/>
+                <rect x="12" y="28" width="6" height="6" rx="1" fill="#29ABE2" opacity="0.5"/>
+                <rect x="2" y="38" width="6" height="6" rx="1" fill="#29ABE2" opacity="0.5"/>
+                <rect x="12" y="38" width="6" height="6" rx="1" fill="#29ABE2"/>
+                <rect x="28" y="42" width="6" height="6" rx="1" fill="#29ABE2"/>
+                <rect x="38" y="48" width="6" height="6" rx="1" fill="#29ABE2" opacity="0.5"/>
+                <rect x="48" y="48" width="6" height="6" rx="1" fill="#29ABE2"/>
+                <rect x="58" y="42" width="6" height="6" rx="1" fill="#29ABE2"/>
+                <rect x="48" y="58" width="6" height="6" rx="1" fill="#29ABE2" opacity="0.5"/>
+                <rect x="58" y="58" width="6" height="6" rx="1" fill="#29ABE2"/>
+                <rect x="28" y="58" width="6" height="6" rx="1" fill="#29ABE2"/>
+                <rect x="38" y="58" width="6" height="6" rx="1" fill="#29ABE2" opacity="0.5"/>
+              </svg>
+              <button class="phone-btn">📷 Join Your Table</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-tag">How it works</div>
+      <h2>Three steps.<br/>Zero confusion.</h2>
+      <p class="section-sub">From QR scan to personal receipt, the entire flow takes under 60 seconds.</p>
+    </div>
+    <div class="how-grid reveal">
+      <div class="how-step">
+        <div class="step-num">01</div>
+        <span class="step-icon">📱</span>
+        <div class="step-title">Scan & Download</div>
+        <p class="step-desc">Each diner scans the table QR code. First-timers are directed to download the BillEat app, sign up with Google, Apple, or anonymously. Return visits open the app directly to your table.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-num">02</div>
+        <span class="step-icon">🍽️</span>
+        <div class="step-title">Select Your Items</div>
+        <p class="step-desc">The full table bill appears. Each diner taps what they ordered, including split quantities for shared dishes.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-num">03</div>
+        <span class="step-icon">✅</span>
+        <div class="step-title">Pay Your Share</div>
+        <p class="step-desc">Confirm your items and your personal receipt is generated instantly. The staff gets a notification, a waiter comes to you directly to process your payment. No waiting, no confusion.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOR WHOM -->
+<section class="for-section" id="for-whom">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-tag">Built for everyone at the table</div>
+      <h2>Two sides.<br/>One platform.</h2>
+    </div>
+    <div class="for-grid reveal">
+      <div class="for-card diners">
+        <span class="for-card-icon">🙋</span>
+        <h3>For Diners</h3>
+        <p>Your food profile builds across every BillEat restaurant, every visit gets smarter, more personal, and more seamless.</p>
+        <ul>
+          <li>Live bill updates as items are ordered</li>
+          <li>Personal itemized receipt every time</li>
+          <li>Split shared dishes by quantity</li>
+          <li>Food profile saved across visits</li>
+          <li>Order history & spending insights</li>
+        </ul>
+        <div class="for-card-bg">🍕</div>
+      </div>
+      <div class="for-card restaurants">
+        <span class="for-card-icon">🏪</span>
+        <h3>For Restaurants</h3>
+        <p>Know exactly who's sitting in your seats before you even take their order. See your floor live, turn tables faster, and act on real diner intelligence the moment they sit down.</p>
+        <ul>
+          <li>Live diner intelligence dashboard</li>
+          <li>Taste profiles per table, per diner</li>
+          <li>Upsell suggestions powered by data</li>
+          <li>Live floor view, see every table at a glance</li>
+          <li>Faster table turnover with instant bill confirmation</li>
+          <li>Regular vs first-time visitor tracking</li>
+        </ul>
+        <div class="for-card-bg">📊</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSIGHTS STRIP -->
+<section class="insight-strip" id="insights">
+  <div class="insight-inner">
+    <div class="reveal">
+      <div class="section-tag" style="color:var(--blue)">The intelligence layer</div>
+      <h2>What restaurants<br/>learn tonight.</h2>
+      <p class="section-sub">Real-time diner data that turns a meal into a relationship.</p>
+    </div>
+    <div class="insight-cards reveal">
+      <div class="insight-card">
+        <div class="insight-card-icon">⭐</div>
+        <div class="insight-card-stat">42<span>%</span></div>
+        <div class="insight-card-label">Regular customers identified</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-card-icon">🥩</div>
+        <div class="insight-card-stat">68<span>%</span></div>
+        <div class="insight-card-label">Meat lovers at tables tonight</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-card-icon">💎</div>
+        <div class="insight-card-stat">$340</div>
+        <div class="insight-card-label">Avg upsell opportunity surfaced</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-card-icon">🆕</div>
+        <div class="insight-card-stat">33<span>%</span></div>
+        <div class="insight-card-label">First-time visitors to re-target</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO CTA -->
+<section class="demo-section" id="demo">
+  <div class="demo-inner reveal">
+    <div class="section-tag" style="text-align:center">See it in action</div>
+    <h2>Try it on your phone.<br/>Right now.</h2>
+    <p class="section-sub">Open the live demo and experience the full diner journey, from QR scan to personal receipt.</p>
+    <a href="/demo" class="btn-primary" style="font-size:16px;padding:18px 48px;">
+      Open Live Demo →
+    </a>
+    <p style="margin-top:16px;font-size:13px;color:var(--gray);">Works on iPhone & Android · No download required</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a class="footer-logo" href="#"><span>Bill</span>Eat</a>
+        <p class="footer-tagline">The diner intelligence platform built on top of every shared table.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-links-title">Product</div>
+        <a href="#how">How it works</a>
+        <a href="#for-whom">For diners</a>
+        <a href="#for-whom">For restaurants</a>
+        <a href="/demo">Live demo</a>
+      </div>
+      <div class="footer-links">
+        <div class="footer-links-title">Company</div>
+        <a href="#">About</a>
+        <a href="#">Investors</a>
+        <a href="#">Partners</a>
+        <a href="mailto:contact@billeat.com">Contact</a>
+      </div>
+      <div class="footer-links">
+        <div class="footer-links-title">Contact</div>
+        <p class="footer-contact">Interested in partnering or investing?<br/><br/>
+          <a href="mailto:contact@billeat.com">contact@billeat.com</a><br/>
+          
+        </p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 BillEat. All rights reserved.</div>
+      <div class="footer-made">Built in Tel Aviv 🇮🇱</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if(entry.isIntersecting){
+      setTimeout(() => entry.target.classList.add('visible'), i * 100);
+    }
+  });
+}, {threshold: 0.1});
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Nav scroll effect
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  if(window.scrollY > 50){
+    nav.style.padding = '14px 5%';
+  } else {
+    nav.style.padding = '20px 5%';
+  }
+});
+</script>
+</body>
+</html>
