@@ -1820,6 +1820,10 @@
 
   let selected = new Set();
   let selectedQty = {}; // tracks how many of each multi-qty item the user claims
+  let selectedShare = {}; // itemIndex -> number of people sharing (1 = just me)
+  let pendingShare = null; // itemIndex currently showing the chooser
+  let pendingMode = null; // null = first step (Just me / Share), 'split' = number picker
+  let pendingQty = {}; // itemIndex -> qty being chosen in the picker (for multi-qty items)
 
   const itemEmojis = ['🍕','🥗','🥤','🍝','🍮'];
   const itemCategories = ['Main course','Starter','Drink','Main course','Dessert'];
@@ -1830,10 +1834,13 @@
       const isSel = selected.has(i);
       const isMulti = item.qty > 1;
       const myQty = selectedQty[i] || 1;
-      const displayPrice = isMulti && isSel ? item.unitPrice * myQty : item.price;
-      const metaText = isMulti
+      const share = selectedShare[i] || 1;
+      const fullPrice = isMulti && isSel ? item.unitPrice * myQty : item.price;
+      const displayPrice = isSel ? Math.round((fullPrice / share) * 100) / 100 : item.price;
+      const sharedLabel = isSel && share > 1 ? ` · shared ×${share}` : '';
+      const metaText = (isMulti
         ? `${itemCategories[i]} · ${item.qty} ordered`
-        : itemCategories[i];
+        : itemCategories[i]) + sharedLabel;
 
       const qtyBlock = isMulti && isSel ? `
         <div style="margin-top:8px;">
@@ -1845,12 +1852,43 @@
           <div class="qty-label">How many did you have?</div>
         </div>` : '';
 
+      let chooserBlock = '';
+      if(pendingShare === i && !isSel){
+        const pq = pendingQty[i] || 1;
+        const qtyPickerInChooser = isMulti ? `
+          <div style="margin-bottom:10px;" onclick="event.stopPropagation()">
+            <div class="qty-selector">
+              <button class="qty-btn" onclick="changePendingQty(${i},-1)">−</button>
+              <div class="qty-num">${pq}</div>
+              <button class="qty-btn" onclick="changePendingQty(${i},1)">+</button>
+            </div>
+            <div class="qty-label">How many did you have?</div>
+          </div>` : '';
+
+        if(pendingMode !== 'split'){
+          chooserBlock = `
+            ${qtyPickerInChooser}
+            <div style="margin-top:8px;display:flex;gap:8px;" onclick="event.stopPropagation()">
+              <button onclick="claimItem(${i},1)" style="flex:1;padding:9px 12px;border-radius:10px;border:none;background:#22c55e;color:#fff;font-weight:600;font-size:13px;cursor:pointer;">Just me</button>
+              <button onclick="openSplitPicker(${i})" style="flex:1;padding:9px 12px;border-radius:10px;border:1px solid #475569;background:transparent;color:#e2e8f0;font-weight:600;font-size:13px;cursor:pointer;">Share</button>
+            </div>`;
+        } else {
+          chooserBlock = `
+            ${qtyPickerInChooser}
+            <div class="qty-label" style="margin-top:4px;margin-bottom:6px;">Split between how many people?</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;" onclick="event.stopPropagation()">
+              ${[2,3,4,5,6].map(n => `<button onclick="claimItem(${i},${n})" style="flex:1;min-width:42px;padding:9px 0;border-radius:10px;border:1px solid #475569;background:transparent;color:#e2e8f0;font-weight:600;font-size:14px;cursor:pointer;">×${n}</button>`).join('')}
+            </div>`;
+        }
+      }
+
       return `
       <div class="bill-card ${isSel?'selected':''}" onclick="toggleRow(${i})">
         <div class="card-emoji">${itemEmojis[i]}</div>
         <div class="card-details">
           <div class="card-name">${item.name}</div>
           <div class="card-meta">${metaText}</div>
+          ${chooserBlock}
           ${qtyBlock}
         </div>
         <div class="card-right">
@@ -1870,9 +1908,42 @@
     if(selected.has(i)){
       selected.delete(i);
       delete selectedQty[i];
+      delete selectedShare[i];
+      pendingShare = null;
+      pendingMode = null;
     } else {
-      selected.add(i);
-      if(items[i].qty > 1) selectedQty[i] = 1; // default to 1
+      if(pendingShare === i){
+        pendingShare = null;
+        pendingMode = null;
+      } else {
+        pendingShare = i;
+        pendingMode = null;
+        if(items[i].qty > 1) pendingQty[i] = 1;
+      }
+    }
+    renderBill();
+  }
+
+  function openSplitPicker(i){
+    pendingMode = 'split';
+    renderBill();
+  }
+
+  function changePendingQty(i, delta){
+    const max = items[i].qty;
+    const current = pendingQty[i] || 1;
+    pendingQty[i] = Math.min(max, Math.max(1, current + delta));
+    renderBill();
+  }
+
+  function claimItem(i, peopleSharing){
+    selected.add(i);
+    selectedShare[i] = peopleSharing;
+    if(items[i].qty > 1) selectedQty[i] = pendingQty[i] || 1;
+    pendingShare = null;
+    pendingMode = null;
+    if(peopleSharing > 1){
+      console.log('[BillEat signal] shared_item', { item: items[i].name, peopleSharing, qty: selectedQty[i] || 1 });
     }
     renderBill();
   }
@@ -1889,12 +1960,13 @@
     let total = 0;
     selected.forEach(i => {
       const item = items[i];
-      if(item.qty > 1 && selectedQty[i]){
-        total += item.unitPrice * selectedQty[i];
-      } else {
-        total += item.price;
-      }
+      const share = selectedShare[i] || 1;
+      const fullPrice = (item.qty > 1 && selectedQty[i])
+        ? item.unitPrice * selectedQty[i]
+        : item.price;
+      total += fullPrice / share;
     });
+    total = Math.round(total * 100) / 100;
     document.getElementById('myTotalAmt').textContent = '₪' + total;
     const countEl = document.getElementById('selectedCount');
     if(countEl) countEl.textContent = selected.size + ' of ' + items.length + ' selected';
@@ -1905,12 +1977,15 @@
     const cl = document.getElementById('confirmList');
     cl.innerHTML = [...selected].map(i => {
       const item = items[i];
-      const price = item.qty > 1 && selectedQty[i] ? item.unitPrice * selectedQty[i] : item.price;
+      const share = selectedShare[i] || 1;
+      const fullPrice = item.qty > 1 && selectedQty[i] ? item.unitPrice * selectedQty[i] : item.price;
+      const price = Math.round((fullPrice / share) * 100) / 100;
       const myQty = item.qty > 1 && selectedQty[i] ? selectedQty[i] : 1;
       const qtyLabel = myQty > 1 ? `${myQty}×` : '1×';
+      const shareLabel = share > 1 ? ` · shared ×${share}` : '';
       return `<div class="receipt-row">
         <div>
-          <div class="receipt-item-name">${item.name}</div>
+          <div class="receipt-item-name">${item.name}${shareLabel}</div>
           <div class="receipt-item-qty">${qtyLabel} ₪${item.unitPrice} each</div>
         </div>
         <div class="receipt-item-price">₪${price}</div>
